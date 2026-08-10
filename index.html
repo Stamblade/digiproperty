@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DigiProperty Inspect Pty Ltd</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>emailjs.init("6qiLezNRccBboMJ7P");</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #0b1622; --navy2: #111f30; --navy3: #162638;
+    --teal: #00c9b1; --teal2: #00a896; --teal-glow: rgba(0,201,177,0.15);
+    --white: #ffffff; --muted: #8ba3b8; --card-bg: #13202f;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--navy); color: var(--white); overflow-x: hidden; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: rgba(11,22,34,0.97); backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,201,177,0.15);
+    padding: 14px 40px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .nav-logo svg { width: 36px; height: 36px; }
+  .nav-brand { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+  .nav-brand span { color: var(--teal); }
+  .nav-sub { font-size: 0.6rem; letter-spacing: 3px; color: var(--muted); display: block; }
+  .nav-cta { background: var(--teal); color: var(--navy); padding: 9px 22px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; text-decoration: none; letter-spacing: 0.5px; transition: background 0.2s, transform 0.2s; cursor: pointer; border: none; }
+  .nav-cta:hover { background: var(--teal2); transform: translateY(-1px); }
+
+  /* PAGES */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: block; }
+
+  /* HERO */
+  .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 70px; position: relative; overflow: hidden; }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, rgba(0,201,177,0.08) 0%, transparent 65%),
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(0,201,177,0.03) 60px, rgba(0,201,177,0.03) 61px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(0,201,177,0.03) 60px, rgba(0,201,177,0.03) 61px);
+  }
+  .hero-icon { width: 90px; height: 90px; margin-bottom: 28px; position: relative; z-index: 1; animation: float 4s ease-in-out infinite; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .hero h1 { font-size: clamp(1.9rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -1px; position: relative; z-index: 1; line-height: 1.1; }
+  .hero h1 span { color: var(--teal); }
+  .hero-tag { font-size: clamp(0.9rem, 2vw, 1.1rem); color: var(--teal); margin-top: 14px; letter-spacing: 1.5px; font-weight: 600; position: relative; z-index: 1; }
+  .hero-desc { color: var(--white); font-size: 1rem; margin-top: 20px; max-width: 560px; line-height: 1.75; position: relative; z-index: 1; opacity: 0.9; }
+  .hero-service-area { margin-top: 16px; position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; background: var(--teal-glow); border: 1px solid rgba(0,201,177,0.25); border-radius: 20px; padding: 7px 18px; color: var(--teal); font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px; }
+  .hero-service-area svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .hero-btn { margin-top: 36px; position: relative; z-index: 1; background: var(--teal); color: var(--navy); padding: 15px 42px; border-radius: 8px; font-weight: 800; font-size: 1rem; letter-spacing: 1px; text-decoration: none; display: inline-block; box-shadow: 0 0 30px rgba(0,201,177,0.3); transition: all 0.25s; cursor: pointer; border: none; }
+  .hero-btn:hover { background: var(--teal2); transform: translateY(-2px); box-shadow: 0 0 40px rgba(0,201,177,0.45); }
+
+  /* SERVICES */
+  .services { padding: 90px 20px; background: var(--navy2); }
+  .section-label { text-align: center; color: var(--teal); font-size: 0.75rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
+  .section-title { text-align: center; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; margin-bottom: 12px; }
+  .section-sub { text-align: center; color: var(--muted); max-width: 480px; margin: 0 auto 56px; line-height: 1.7; font-size: 0.95rem; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px; max-width: 1060px; margin: 0 auto; }
+  .card { background: var(--card-bg); border: 1px solid rgba(0,201,177,0.1); border-radius: 14px; padding: 34px 28px; transition: all 0.3s; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--teal); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
+  .card:hover { border-color: rgba(0,201,177,0.35); transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+  .card:hover::before { transform: scaleX(1); }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .card-pkg { font-size: 0.7rem; letter-spacing: 3px; color: var(--teal); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+  .card-price { font-size: 1.5rem; font-weight: 900; color: var(--teal); line-height: 1; }
+  .card h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 12px; }
+  .card-desc { color: var(--muted); line-height: 1.7; font-size: 0.88rem; margin-bottom: 20px; }
+  .includes-title { font-size: 0.72rem; letter-spacing: 2px; color: var(--teal); font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
+  .includes-list { list-style: none; margin-bottom: 16px; }
+  .includes-list li { font-size: 0.85rem; color: var(--muted); padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
+  .includes-list li::before { content: '✓'; color: var(--teal); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .addon-box { background: rgba(0,201,177,0.05); border: 1px solid rgba(0,201,177,0.15); border-radius: 8px; padding: 12px 14px; margin-top: auto; }
+  .addon-title { font-size: 0.7rem; letter-spacing: 2px; color: var(--teal); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+  .addon-text { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+  /* INQUIRY */
+  .inquiry { padding: 90px 20px; background: var(--navy); }
+  .form-wrap { max-width: 660px; margin: 0 auto; background: var(--card-bg); border: 1px solid rgba(0,201,177,0.12); border-radius: 16px; padding: 48px 40px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--teal); letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+  .field input, .field select, .field textarea { width: 100%; padding: 13px 16px; background: var(--navy2); border: 1px solid rgba(0,201,177,0.15); border-radius: 8px; color: var(--white); font-size: 0.95rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,201,177,0.1); }
+  .field select option { background: var(--navy2); }
+  .field textarea { resize: vertical; min-height: 110px; }
+  .field-note { font-size: 0.78rem; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+
+  /* T&C CHECKBOX */
+  .tc-field { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 24px; padding: 16px; background: rgba(0,201,177,0.04); border: 1px solid rgba(0,201,177,0.12); border-radius: 8px; }
+  .tc-field input[type="checkbox"] { width: 18px; height: 18px; min-width: 18px; accent-color: var(--teal); margin-top: 2px; cursor: pointer; }
+  .tc-label { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+  .tc-label a { color: var(--teal); text-decoration: underline; cursor: pointer; }
+  .tc-label a:hover { color: var(--teal2); }
+
+  .submit-btn { width: 100%; padding: 16px; background: var(--teal); color: var(--navy); border: none; border-radius: 8px; font-size: 1rem; font-weight: 800; letter-spacing: 1px; cursor: pointer; transition: all 0.25s; margin-top: 4px; }
+  .submit-btn:hover { background: var(--teal2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,201,177,0.3); }
+  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* SUCCESS MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(7,14,22,0.92); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.active { display: flex; }
+  .modal { background: var(--card-bg); border: 1px solid rgba(0,201,177,0.2); border-radius: 20px; padding: 52px 44px; max-width: 520px; width: 100%; text-align: center; position: relative; animation: modalIn 0.4s cubic-bezier(0.34,1.56,0.64,1); max-height: 90vh; overflow-y: auto; }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.85) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .modal-check { width: 70px; height: 70px; margin: 0 auto 24px; }
+  .modal h2 { font-size: 1.6rem; font-weight: 900; margin-bottom: 8px; }
+  .modal h2 span { color: var(--teal); }
+  .modal-sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 32px; line-height: 1.6; }
+  .modal-steps { text-align: left; margin-bottom: 32px; }
+  .modal-steps-title { font-size: 0.72rem; letter-spacing: 3px; color: var(--teal); font-weight: 700; text-transform: uppercase; margin-bottom: 16px; text-align: center; }
+  .modal-step { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+  .step-num { width: 30px; height: 30px; border-radius: 50%; background: var(--teal-glow); border: 1px solid rgba(0,201,177,0.3); color: var(--teal); font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-text strong { display: block; font-size: 0.9rem; font-weight: 700; margin-bottom: 2px; }
+  .step-text span { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .modal-close { background: var(--teal); color: var(--navy); border: none; border-radius: 8px; padding: 13px 36px; font-size: 0.95rem; font-weight: 800; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+  .modal-close:hover { background: var(--teal2); transform: translateY(-1px); }
+
+  /* LEGAL PAGES */
+  .legal-page { padding: 120px 24px 80px; max-width: 800px; margin: 0 auto; }
+  .legal-page h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 900; margin-bottom: 8px; }
+  .legal-page h1 span { color: var(--teal); }
+  .legal-updated { font-size: 0.8rem; color: var(--muted); margin-bottom: 40px; letter-spacing: 1px; }
+  .legal-section { margin-bottom: 36px; padding-bottom: 36px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .legal-section:last-child { border-bottom: none; }
+  .legal-section h2 { font-size: 1rem; font-weight: 800; color: var(--teal); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+  .legal-section p { color: var(--muted); font-size: 0.92rem; line-height: 1.85; margin-bottom: 10px; }
+  .legal-list { list-style: none; margin: 10px 0; }
+  .legal-list li { color: var(--muted); font-size: 0.92rem; line-height: 1.75; padding: 4px 0; display: flex; gap: 10px; }
+  .legal-list li::before { content: '—'; color: var(--teal); flex-shrink: 0; }
+  .legal-back { display: inline-flex; align-items: center; gap: 8px; color: var(--teal); font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-bottom: 32px; text-decoration: none; transition: gap 0.2s; }
+  .legal-back:hover { gap: 12px; }
+  .disclaimer-intro { background: rgba(0,201,177,0.05); border: 1px solid rgba(0,201,177,0.15); border-radius: 10px; padding: 20px 24px; margin-bottom: 32px; }
+  .disclaimer-intro p { color: var(--white); font-size: 0.95rem; line-height: 1.7; margin: 0; }
+
+  /* FOOTER */
+  footer { background: var(--navy2); border-top: 1px solid rgba(0,201,177,0.1); padding: 36px 40px; }
+  .footer-main { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+  .footer-brand { font-size: 0.95rem; font-weight: 700; }
+  .footer-brand span { color: var(--teal); }
+  .footer-sub { font-size: 0.7rem; color: var(--muted); letter-spacing: 2px; margin-top: 4px; }
+  .footer-right { color: var(--muted); font-size: 0.8rem; text-align: right; }
+  .footer-links { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 20px; display: flex; gap: 24px; flex-wrap: wrap; }
+  .footer-links a { color: var(--muted); font-size: 0.8rem; text-decoration: none; cursor: pointer; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--teal); }
+
+  @media (max-width: 560px) {
+    nav { padding: 14px 20px; }
+    .form-wrap { padding: 32px 20px; }
+    .form-row { grid-template-columns: 1fr; }
+    .footer-main { flex-direction: column; }
+    .footer-right { text-align: left; }
+    .modal { padding: 36px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <svg class="modal-check" viewBox="0 0 70 70" fill="none">
+      <circle cx="35" cy="35" r="33" stroke="#00c9b1" stroke-width="2.5"/>
+      <path d="M20 35l11 11 18-20" stroke="#00c9b1" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h2>Thank You for Your <span>Enquiry!</span></h2>
+    <p class="modal-sub">We've received your details and we're excited to help you inspect with confidence.</p>
+    <div class="modal-steps">
+      <div class="modal-steps-title">Here's What Happens Next</div>
+      <div class="modal-step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>We'll review your enquiry</strong><span>Our team will look over your details and the property you'd like inspected.</span></div>
+      </div>
+      <div class="modal-step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>We'll reach out within 24 hours</strong><span>A member of our team will contact you via email or phone to confirm the details and arrange payment.</span></div>
+      </div>
+      <div class="modal-step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>We attend the inspection</strong><span>We'll be there on your behalf — walking through the property and capturing everything you need to know.</span></div>
+      </div>
+      <div class="modal-step">
+        <div class="step-num">4</div>
+        <div class="step-text"><strong>You receive your video</strong><span>Your walkthrough video and observations will be delivered so you can make your decision with confidence.</span></div>
+      </div>
+    </div>
+    <button class="modal-close" onclick="closeModal()">SOUNDS GREAT</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">
+    <svg viewBox="0 0 36 36" fill="none">
+      <circle cx="15" cy="15" r="12" stroke="#00c9b1" stroke-width="2.5"/>
+      <path d="M15 10l-5 5v6h3v-4h4v4h3v-6l-5-5z" fill="#00c9b1"/>
+      <line x1="24" y1="24" x2="32" y2="32" stroke="#00c9b1" stroke-width="2.8" stroke-linecap="round"/>
+    </svg>
+    <div>
+      <div class="nav-brand"><span>DIGI</span>PROPERTY</div>
+      <span class="nav-sub">INSPECT &nbsp; PTY LTD</span>
+    </div>
+  </div>
+  <button class="nav-cta" onclick="showPage('home'); setTimeout(()=>document.getElementById('inquiry').scrollIntoView({behavior:'smooth'}),100)">GET IN TOUCH</button>
+</nav>
+
+<!-- ============ HOME PAGE ============ -->
+<div class="page active" id="page-home">
+
+  <section class="hero">
+    <svg class="hero-icon" viewBox="0 0 90 90" fill="none">
+      <circle cx="38" cy="38" r="30" stroke="#00c9b1" stroke-width="3" stroke-dasharray="6 3"/>
+      <circle cx="38" cy="38" r="22" fill="rgba(0,201,177,0.08)" stroke="#00c9b1" stroke-width="1.5"/>
+      <path d="M38 24l-10 10v14h7v-8h6v8h7V34L38 24z" fill="#00c9b1"/>
+      <line x1="60" y1="60" x2="78" y2="78" stroke="#00c9b1" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+    <h1><span>DIGI</span>PROPERTY<br>INSPECT</h1>
+    <div class="hero-tag">Property Inspection For People Who Can't Be There</div>
+    <p class="hero-desc">Independent property walkthroughs and neighbourhood insights to help you rent with confidence when you can't attend an inspection yourself.</p>
+    <div class="hero-service-area">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#00c9b1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      Currently servicing Sydney within a 20km radius of the CBD
+    </div>
+    <button class="hero-btn" onclick="document.getElementById('inquiry').scrollIntoView({behavior:'smooth'})">MAKE AN ENQUIRY</button>
+  </section>
+
+  <section class="services" id="services">
+    <div class="section-label">Our Packages</div>
+    <h2 class="section-title">Choose Your Inspection</h2>
+    <p class="section-sub">Whether you're interstate, overseas, or simply can't make it — we attend the inspection so you don't have to.</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-pkg">Package 1</div><h3>Virtual Inspection</h3></div>
+          <div class="card-price">$79</div>
+        </div>
+        <p class="card-desc">We attend the property inspection on your behalf and provide a detailed video walkthrough of the property and surrounding area. You'll receive a recorded video highlighting the property's condition, layout, features and neighbourhood observations, along with answers to any specific questions you'd like us to investigate.</p>
+        <div class="includes-title">Includes</div>
+        <ul class="includes-list">
+          <li>Property walkthrough video</li>
+          <li>Surrounding area video</li>
+          <li>Responses to client questions</li>
+          <li>Video delivered within 24 hours</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-pkg">Package 2</div><h3>Live Guided Inspection</h3></div>
+          <div class="card-price">$139</div>
+        </div>
+        <p class="card-desc">Join us virtually from anywhere in the world. We attend the inspection and connect with you via WhatsApp or FaceTime, allowing you to direct the inspection in real time and ask questions as we walk through. You'll also receive a recorded video walkthrough for future reference.</p>
+        <div class="includes-title">Includes</div>
+        <ul class="includes-list">
+          <li>Live WhatsApp or FaceTime inspection</li>
+          <li>Property walkthrough video</li>
+          <li>Surrounding area video</li>
+          <li>Responses to client questions</li>
+          <li>Video delivered within 24 hours</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-pkg">Package 3</div><h3>Relocation Inspection Pack</h3></div>
+          <div class="card-price">$349</div>
+        </div>
+        <p class="card-desc">Designed for renters expecting to inspect multiple properties before making a decision. Includes five Virtual Inspections across properties within our service area — ideal for those relocating to Sydney.</p>
+        <div class="includes-title">Includes</div>
+        <ul class="includes-list">
+          <li>Five Virtual Inspections</li>
+          <li>Property and surrounding area coverage</li>
+          <li>Responses to client questions</li>
+          <li>Video delivered within 24 hours per inspection</li>
+        </ul>
+        <div class="addon-box">
+          <div class="addon-title">Optional Add-On</div>
+          <div class="addon-text">Upgrade any inspection to a Live Guided Inspection: <strong style="color:var(--teal)">+$15</strong> per property</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="inquiry" id="inquiry">
+    <div class="section-label">Contact Us</div>
+    <h2 class="section-title">Make an Enquiry</h2>
+    <p class="section-sub">Fill in the form below and we'll be in touch within 24 hours to confirm your booking.</p>
+    <div class="form-wrap">
+      <div id="inquiry-form">
+        <div class="form-row">
+          <div class="field"><label>First Name</label><input type="text" id="fname" placeholder="John"></div>
+          <div class="field"><label>Last Name</label><input type="text" id="lname" placeholder="Smith"></div>
+        </div>
+        <div class="field"><label>Email Address</label><input type="email" id="email" placeholder="john@example.com"></div>
+        <div class="field"><label>Phone Number</label><input type="tel" id="phone" placeholder="+61 4XX XXX XXX"></div>
+        <div class="field">
+          <label>Package</label>
+          <select id="service">
+            <option value="" disabled selected>Select a package...</option>
+            <option>Package 1 — Virtual Inspection ($79)</option>
+            <option>Package 2 — Live Guided Inspection ($139)</option>
+            <option>Package 3 — Relocation Inspection Pack ($349 for 5)</option>
+            <option>Not Sure Yet — Just Enquiring</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Property Address <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(if known)</span></label>
+          <input type="text" id="property" placeholder="e.g. 12 Example St, Surry Hills NSW 2010">
+          <div class="field-note">If you have multiple properties (Package 3), list them in the message below.</div>
+        </div>
+        <div class="field">
+          <label>Inspection Date &amp; Time <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(if known)</span></label>
+          <input type="text" id="datetime" placeholder="e.g. Saturday 14 June, 11:00am">
+        </div>
+        <div class="field">
+          <label>Your Message</label>
+          <textarea id="message" placeholder="Tell us anything else — specific questions you'd like investigated, preferred contact method, or any other details..."></textarea>
+        </div>
+        <div class="tc-field">
+          <input type="checkbox" id="tc-agree">
+          <label class="tc-label" for="tc-agree">
+            I have read and agree to the <a onclick="showPage('terms')">Terms &amp; Conditions</a> and <a onclick="showPage('disclaimer')">Disclaimer</a>. I understand that DigiProperty Inspect provides visual inspection services only and that all property decisions remain my own responsibility.
+          </label>
+        </div>
+        <button class="submit-btn" onclick="submitForm()">SEND ENQUIRY →</button>
+      </div>
+    </div>
+  </section>
+
+</div><!-- end home page -->
+
+<!-- ============ T&C PAGE ============ -->
+<div class="page" id="page-terms">
+  <div class="legal-page">
+    <a class="legal-back" onclick="showPage('home')">← Back to Home</a>
+    <h1><span>Terms &amp; Conditions</span></h1>
+    <div class="legal-updated">DigiProperty Inspect Pty Ltd</div>
+
+    <div class="legal-section">
+      <h2>1. Acceptance of Terms</h2>
+      <p>By booking or using the services provided by DigiProperty Inspect ("we", "our", "us"), you agree to be bound by these Terms &amp; Conditions.</p>
+    </div>
+    <div class="legal-section">
+      <h2>2. Services</h2>
+      <p>DigiProperty Inspect provides:</p>
+      <ul class="legal-list">
+        <li>Virtual property walkthroughs</li>
+        <li>Surrounding area reviews</li>
+        <li>Live guided property inspections via video call</li>
+        <li>Inspection packages as advertised on our website</li>
+      </ul>
+      <p>Services are limited to visual observations made during attendance at a property inspection.</p>
+    </div>
+    <div class="legal-section">
+      <h2>3. Service Area</h2>
+      <p>Services are currently available within Sydney and surrounding areas, subject to availability.</p>
+    </div>
+    <div class="legal-section">
+      <h2>4. Bookings and Payment</h2>
+      <ul class="legal-list">
+        <li>Payment must be made in full prior to the inspection unless otherwise agreed in writing.</li>
+        <li>Bookings are subject to availability and confirmation by DigiProperty Inspect.</li>
+      </ul>
+    </div>
+    <div class="legal-section">
+      <h2>5. Customer Responsibilities</h2>
+      <p>The customer is responsible for:</p>
+      <ul class="legal-list">
+        <li>Providing accurate property details</li>
+        <li>Ensuring inspection times are correct</li>
+        <li>Providing any specific questions or requests before the inspection</li>
+      </ul>
+      <p>We are not responsible for missed inspections caused by incorrect information provided by the customer.</p>
+    </div>
+    <div class="legal-section">
+      <h2>6. Cancellation and Refunds</h2>
+      <ul class="legal-list">
+        <li>Cancellations made more than 12 hours before the scheduled inspection may be eligible for a full refund.</li>
+        <li>Cancellations made within 12 hours of the inspection may incur a cancellation fee or be non-refundable.</li>
+        <li>If an inspection is cancelled by the agent, landlord or property owner, DigiProperty Inspect will make reasonable efforts to reschedule or provide a refund.</li>
+      </ul>
+    </div>
+    <div class="legal-section">
+      <h2>7. Inspection Limitations</h2>
+      <ul class="legal-list">
+        <li>Our services are limited to areas accessible during the inspection.</li>
+        <li>Access may be restricted by landlords, tenants, agents or property owners.</li>
+        <li>We cannot guarantee access to all rooms, facilities or areas of a property.</li>
+      </ul>
+    </div>
+    <div class="legal-section">
+      <h2>8. Intellectual Property</h2>
+      <ul class="legal-list">
+        <li>Inspection videos, photographs and reports are provided solely for the customer's personal use unless otherwise agreed.</li>
+        <li>Customers must not reproduce, distribute or commercially exploit inspection materials without written consent.</li>
+      </ul>
+    </div>
+    <div class="legal-section">
+      <h2>9. Limitation of Liability</h2>
+      <p>To the maximum extent permitted by law, DigiProperty Inspect shall not be liable for any loss, damage, expense or claim arising from reliance on information provided through our services.</p>
+      <p>The customer acknowledges that all decisions relating to renting, leasing or purchasing a property remain their sole responsibility.</p>
+    </div>
+    <div class="legal-section">
+      <h2>10. Changes to Terms</h2>
+      <p>We reserve the right to update these Terms &amp; Conditions at any time. Updated versions will be published on our website.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DISCLAIMER PAGE ============ -->
+<div class="page" id="page-disclaimer">
+  <div class="legal-page">
+    <a class="legal-back" onclick="showPage('home')">← Back to Home</a>
+    <h1><span>Disclaimer</span></h1>
+    <div class="legal-updated">DigiProperty Inspect Pty Ltd</div>
+
+    <div class="disclaimer-intro">
+      <p>DigiProperty Inspect acts solely as an independent inspection service and does not act as a real estate agent, leasing agent or tenant representative. The information provided is for general informational purposes only.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>Nature of Service</h2>
+      <p>Our services consist of visual observations made during attendance at a property inspection and should not be relied upon as professional advice.</p>
+      <p>DigiProperty Inspect is not a licensed building inspector, pest inspector, engineer, electrician, plumber, valuer, solicitor or property consultant.</p>
+    </div>
+    <div class="legal-section">
+      <h2>We Do Not Provide</h2>
+      <ul class="legal-list">
+        <li>Building inspections</li>
+        <li>Pest inspections</li>
+        <li>Structural assessments</li>
+        <li>Safety certifications</li>
+        <li>Property valuations</li>
+        <li>Legal advice</li>
+        <li>Engineering reports</li>
+      </ul>
+    </div>
+    <div class="legal-section">
+      <h2>Limitations of Observation</h2>
+      <p>Our observations are limited to what is visible and accessible during the inspection. We cannot identify hidden defects, future maintenance issues, structural problems, pest infestations, mould behind walls, plumbing defects, electrical faults or other issues that may not be visible at the time of inspection.</p>
+    </div>
+    <div class="legal-section">
+      <h2>Neighbourhood Observations</h2>
+      <p>Any comments regarding noise, parking, traffic, public transport, amenities, neighbourhood conditions or safety are based solely on observations made at the time of inspection and may change without notice.</p>
+    </div>
+    <div class="legal-section">
+      <h2>Intended Use</h2>
+      <p>Inspection videos and reports are intended to assist customers in making informed decisions. They do not constitute recommendations to rent, lease, purchase or avoid any property.</p>
+      <p>Customers should undertake their own due diligence and obtain professional advice where appropriate.</p>
+    </div>
+    <div class="legal-section">
+      <h2>Acceptance</h2>
+      <p>By using our services, you acknowledge and accept these limitations.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PRIVACY PAGE ============ -->
+<div class="page" id="page-privacy">
+  <div class="legal-page">
+    <a class="legal-back" onclick="showPage('home')">← Back to Home</a>
+    <h1><span>Privacy Policy</span></h1>
+    <div class="legal-updated">DigiProperty Inspect Pty Ltd &nbsp;·&nbsp; Last Updated: August 2026</div>
+
+    <div class="legal-section">
+      <h2>1. Introduction</h2>
+      <p>DigiProperty Inspect ("we", "our", "us") is committed to protecting your privacy and handling personal information in a responsible manner. This Privacy Policy explains how we collect, use, store and disclose personal information when you use our website or engage our services.</p>
+    </div>
+    <div class="legal-section">
+      <h2>2. Information We Collect</h2>
+      <p>We may collect the following information:</p>
+      <ul class="legal-list">
+        <li>Full name</li>
+        <li>Email address</li>
+        <li>Phone number</li>
+        <li>Property addresses</li>
+        <li>Inspection details and booking information</li>
+        <li>Communication preferences</li>
+        <li>Information provided during enquiries or bookings</li>
+      </ul>
+      <p>We may also collect videos, photographs and inspection-related notes necessary to provide our services.</p>
+    </div>
+    <div class="legal-section">
+      <h2>3. How We Use Your Information</h2>
+      <p>We collect personal information for the purpose of:</p>
+      <ul class="legal-list">
+        <li>Providing property inspection services</li>
+        <li>Scheduling and managing bookings</li>
+        <li>Communicating with clients</li>
+        <li>Delivering inspection videos and reports</li>
+        <li>Responding to enquiries</li>
+        <li>Processing payments</li>
+        <li>Improving our services</li>
+      </ul>
+    </div>
+    <div class="legal-section">
+      <h2>4. Delivery of Inspection Materials</h2>
+      <p>Inspection videos, photographs and related information may be delivered using the communication method nominated by the client, including email, SMS, WhatsApp, FaceTime, cloud storage links or other mutually agreed platforms.</p>
+      <p>By providing your preferred communication method, you consent to receiving inspection materials through that platform.</p>
+    </div>
+    <div class="legal-section">
+      <h2>5. Video and Photo Content</h2>
+      <p>Our services involve recording properties and surrounding areas for the purpose of providing inspection services. We take reasonable steps to avoid intentionally recording identifiable information about third parties attending inspections. Any incidental capture of third parties may occur as part of the inspection process. Inspection footage is collected solely for the purpose of delivering our services to the client.</p>
+    </div>
+    <div class="legal-section">
+      <h2>6. Storage and Retention</h2>
+      <p>Inspection videos, photographs and customer information may be stored electronically using secure devices and cloud-based storage services. Unless required for legal, accounting or business purposes, inspection footage may be deleted after a reasonable period.</p>
+    </div>
+    <div class="legal-section">
+      <h2>7. Disclosure of Information</h2>
+      <p>We do not sell or rent your personal information. We may disclose information to:</p>
+      <ul class="legal-list">
+        <li>Payment service providers</li>
+        <li>Cloud storage providers</li>
+        <li>Website hosting providers</li>
+        <li>Professional advisers</li>
+        <li>Government authorities where required by law</li>
+      </ul>
+    </div>
+    <div class="legal-section">
+      <h2>8. Security</h2>
+      <p>We take reasonable steps to protect personal information from misuse, interference, loss, unauthorised access, modification or disclosure. However, no method of electronic transmission or storage is completely secure and we cannot guarantee absolute security.</p>
+    </div>
+    <div class="legal-section">
+      <h2>9. Access and Correction</h2>
+      <p>You may request access to the personal information we hold about you or request correction of inaccurate information. Requests should be submitted using the contact details on our website.</p>
+    </div>
+    <div class="legal-section">
+      <h2>10. Changes to this Policy</h2>
+      <p>We may update this Privacy Policy from time to time. Any changes will be published on our website.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-main">
+    <div>
+      <div class="footer-brand"><span>DIGI</span>PROPERTY INSPECT</div>
+      <div class="footer-sub">PTY LTD &nbsp;|&nbsp; PROPERTY INSPECTION FOR PEOPLE WHO CAN'T BE THERE</div>
+    </div>
+    <div class="footer-right">© 2026 DigiProperty Inspect Pty Ltd<br>All rights reserved.</div>
+  </div>
+  <div class="footer-links">
+    <a onclick="showPage('terms')">Terms &amp; Conditions</a>
+    <a onclick="showPage('disclaimer')">Disclaimer</a>
+    <a onclick="showPage('privacy')">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function submitForm() {
+    const fname = document.getElementById('fname').value.trim();
+    const lname = document.getElementById('lname').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const service = document.getElementById('service').value;
+    const property = document.getElementById('property').value.trim();
+    const datetime = document.getElementById('datetime').value.trim();
+    const message = document.getElementById('message').value.trim();
+    const tcAgree = document.getElementById('tc-agree').checked;
+
+    if (!fname || !email || !service) {
+      alert('Please fill in your name, email, and select a package.');
+      return;
+    }
+    if (!tcAgree) {
+      alert('Please read and accept the Terms & Conditions and Disclaimer before submitting.');
+      return;
+    }
+
+    const btn = document.querySelector('.submit-btn');
+    btn.textContent = 'SENDING...';
+    btn.disabled = true;
+
+    const templateParams = {
+      name: fname + ' ' + lname,
+      email, phone: phone || 'Not provided',
+      service, property: property || 'Not provided',
+      datetime: datetime || 'Not provided',
+      message: message || 'No message provided'
+    };
+
+    emailjs.send('service_hdbyoxj', 'template_dn1naes', templateParams)
+      .then(() => {
+        document.getElementById('modal').classList.add('active');
+        document.getElementById('inquiry-form').querySelectorAll('input,select,textarea').forEach(el => el.value = '');
+        document.getElementById('tc-agree').checked = false;
+        btn.textContent = 'SEND ENQUIRY →';
+        btn.disabled = false;
+      })
+      .catch(err => {
+        console.error('EmailJS full error:', JSON.stringify(err));
+        btn.textContent = 'SEND ENQUIRY →';
+        btn.disabled = false;
+        const code = err.status || 'unknown';
+        const text = err.text || JSON.stringify(err);
+        alert('EmailJS Error ' + code + ': ' + text);
+      });
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+  }
+
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+</body>
+</html>
